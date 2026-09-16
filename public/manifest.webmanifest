@@ -1,0 +1,22 @@
+{
+  "name": "CampusFind",
+  "short_name": "CampusFind",
+  "description": "Map-first lost and found for CHRIST Bangalore Kengeri",
+  "start_url": "/kengeri",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#0B3D2E",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/next.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512"
+    }
+  ]
+}
