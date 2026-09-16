@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import maplibregl, { LngLatBoundsLike } from "maplibre-gl";
+import { AttributionControl, LngLatBounds, Map, Marker, NavigationControl, Popup } from "maplibre-gl";
+import type { LngLatBoundsLike, StyleSpecification } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 type Place = {
@@ -19,7 +20,7 @@ type KengeriMapProps = {
   places: Place[];
 };
 
-const mapStyle = {
+const mapStyle: StyleSpecification = {
   version: 8,
   sources: {
     "osm-tiles": {
@@ -39,15 +40,23 @@ const mapStyle = {
       maxzoom: 19,
     },
   ],
-} as const;
+};
 
 export function KengeriMap({ centroid, places }: KengeriMapProps) {
-  const mapRef = useRef<maplibregl.Map | null>(null);
+  const mapRef = useRef<Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
   const bounds = useMemo<LngLatBoundsLike>(() => {
-    const allPoints = places.map((place) => [place.lng, place.lat] as [number, number]);
-    return allPoints.length > 1 ? allPoints : [[centroid.lng, centroid.lat], [centroid.lng, centroid.lat]];
+    if (places.length === 0) {
+      return [
+        [centroid.lng, centroid.lat],
+        [centroid.lng, centroid.lat],
+      ];
+    }
+
+    const extent = new LngLatBounds([places[0].lng, places[0].lat], [places[0].lng, places[0].lat]);
+    places.forEach((place) => extent.extend([place.lng, place.lat]));
+    return extent;
   }, [centroid.lat, centroid.lng, places]);
 
   useEffect(() => {
@@ -55,7 +64,7 @@ export function KengeriMap({ centroid, places }: KengeriMapProps) {
       return;
     }
 
-    const map = new maplibregl.Map({
+    const map = new Map({
       container: mapContainerRef.current,
       style: mapStyle,
       center: [centroid.lng, centroid.lat],
@@ -64,18 +73,18 @@ export function KengeriMap({ centroid, places }: KengeriMapProps) {
     });
 
     mapRef.current = map;
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
-    map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
+    map.addControl(new NavigationControl({ showCompass: false }), "top-right");
+    map.addControl(new AttributionControl({ compact: true }), "bottom-left");
 
     map.on("load", () => {
       map.fitBounds(bounds, { padding: 36, maxZoom: 17 });
 
       places.forEach((place) => {
-        const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false }).setHTML(
+        const popup = new Popup({ closeButton: false, closeOnClick: false }).setHTML(
           `<strong>${place.name}</strong>`
         );
 
-        const marker = new maplibregl.Marker({ color: "#16a34a", scale: 0.9 })
+        const marker = new Marker({ color: "#16a34a", scale: 0.9 })
           .setLngLat([place.lng, place.lat])
           .setPopup(popup)
           .addTo(map);
