@@ -229,6 +229,12 @@ export async function verifyOtp(challengeId: string, code: string): Promise<{ ok
 export async function createItem(input: NewItemInput): Promise<ItemRecord> {
   const db = await loadDb();
   const now = nowIso();
+  const words = input.title
+    .toLowerCase()
+    .split(/[\s,.-]+/)
+    .filter((w) => w.length > 2);
+  const derivedTags = Array.from(new Set([...(input.tags ?? []), input.category, ...words]));
+
   const item: ItemRecord = {
     id: randomUUID(),
     campusSlug: input.campusSlug,
@@ -238,7 +244,7 @@ export async function createItem(input: NewItemInput): Promise<ItemRecord> {
     category: input.category,
     color: input.color ?? null,
     brand: input.brand ?? null,
-    tags: input.tags ?? [],
+    tags: derivedTags,
     caption: null,
     description: input.transcript ?? null,
     distinctive: null,
@@ -303,7 +309,7 @@ export async function listItems(filters: ItemFilters): Promise<ReturnType<typeof
 export async function getItem(campusSlug: string, itemId: string): Promise<(ReturnType<typeof sanitizeItem> & { matches: ReturnType<typeof sanitizeItem>[] }) | null> {
   const db = await loadDb();
   const item = db.items.find((it) => it.campusSlug === campusSlug && it.id === itemId);
-  if (!item) {
+  if (!item || item.status === "hidden") {
     return null;
   }
 

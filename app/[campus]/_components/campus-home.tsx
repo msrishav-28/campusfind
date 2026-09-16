@@ -22,6 +22,7 @@ export function CampusHome({ campus, centroid }: CampusHomeProps) {
 
   const loadItems = useCallback(async () => {
     const query = new URLSearchParams();
+    query.set("status", "open");
     if (activeFilter === "lost" || activeFilter === "found") {
       query.set("type", activeFilter);
     }
