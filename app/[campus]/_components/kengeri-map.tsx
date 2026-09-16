@@ -1,23 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { AttributionControl, LngLatBounds, Map, Marker, NavigationControl, Popup } from "maplibre-gl";
+import { AttributionControl, LngLatBounds, Map, Marker, NavigationControl } from "maplibre-gl";
 import type { LngLatBoundsLike, StyleSpecification } from "maplibre-gl";
+import type { ApiItem } from "./types";
 import "maplibre-gl/dist/maplibre-gl.css";
-
-type Place = {
-  id: string;
-  name: string;
-  lat: number;
-  lng: number;
-};
 
 type KengeriMapProps = {
   centroid: {
     lat: number;
     lng: number;
   };
-  places: Place[];
+  items: ApiItem[];
+  deviceLocation: { lat: number; lng: number } | null;
+  onSelect: (item: ApiItem) => void;
 };
 
 const mapStyle: StyleSpecification = {
@@ -42,22 +38,24 @@ const mapStyle: StyleSpecification = {
   ],
 };
 
-export function KengeriMap({ centroid, places }: KengeriMapProps) {
+export function KengeriMap({ centroid, items, deviceLocation, onSelect }: KengeriMapProps) {
   const mapRef = useRef<Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const itemMarkersRef = useRef<Marker[]>([]);
+  const deviceMarkerRef = useRef<Marker | null>(null);
 
   const bounds = useMemo<LngLatBoundsLike>(() => {
-    if (places.length === 0) {
+    if (items.length === 0) {
       return [
         [centroid.lng, centroid.lat],
         [centroid.lng, centroid.lat],
       ];
     }
 
-    const extent = new LngLatBounds([places[0].lng, places[0].lat], [places[0].lng, places[0].lat]);
-    places.forEach((place) => extent.extend([place.lng, place.lat]));
+    const extent = new LngLatBounds([items[0].lng, items[0].lat], [items[0].lng, items[0].lat]);
+    items.forEach((item) => extent.extend([item.lng, item.lat]));
     return extent;
-  }, [centroid.lat, centroid.lng, places]);
+  }, [centroid.lat, centroid.lng, items]);
 
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) {
@@ -76,29 +74,52 @@ export function KengeriMap({ centroid, places }: KengeriMapProps) {
     map.addControl(new NavigationControl({ showCompass: false }), "top-right");
     map.addControl(new AttributionControl({ compact: true }), "bottom-left");
 
-    map.on("load", () => {
-      map.fitBounds(bounds, { padding: 36, maxZoom: 17 });
-
-      places.forEach((place) => {
-        const popup = new Popup({ closeButton: false, closeOnClick: false }).setHTML(
-          `<strong>${place.name}</strong>`
-        );
-
-        const marker = new Marker({ color: "#16a34a", scale: 0.9 })
-          .setLngLat([place.lng, place.lat])
-          .setPopup(popup)
-          .addTo(map);
-
-        marker.getElement().addEventListener("mouseenter", () => popup.addTo(map));
-        marker.getElement().addEventListener("mouseleave", () => popup.remove());
-      });
-    });
-
     return () => {
       map.remove();
       mapRef.current = null;
+      itemMarkersRef.current = [];
+      deviceMarkerRef.current = null;
     };
-  }, [bounds, centroid.lat, centroid.lng, places]);
+  }, [centroid.lat, centroid.lng]);
 
-  return <div ref={mapContainerRef} className="h-full w-full" />;
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) {
+      return;
+    }
+
+    itemMarkersRef.current.forEach((marker) => marker.remove());
+    itemMarkersRef.current = [];
+
+    items.forEach((item) => {
+      const marker = new Marker({ color: item.type === "lost" ? "#ef4444" : "#22c55e", scale: 0.95 })
+        .setLngLat([item.lng, item.lat])
+        .addTo(map);
+
+      marker.getElement().addEventListener("click", () => onSelect(item));
+      itemMarkersRef.current.push(marker);
+    });
+
+    map.fitBounds(bounds, { padding: 36, maxZoom: 17 });
+  }, [bounds, items, onSelect]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) {
+      return;
+    }
+
+    if (deviceMarkerRef.current) {
+      deviceMarkerRef.current.remove();
+      deviceMarkerRef.current = null;
+    }
+
+    if (!deviceLocation) {
+      return;
+    }
+
+    deviceMarkerRef.current = new Marker({ color: "#3b82f6", scale: 0.8 }).setLngLat([deviceLocation.lng, deviceLocation.lat]).addTo(map);
+  }, [deviceLocation]);
+
+  return <div ref={mapContainerRef} className="h-[calc(100vh-9rem)] w-full" />;
 }
