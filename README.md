@@ -4,9 +4,14 @@ Map-first lost & found for **CHRIST (Deemed to be University), Bangalore Kengeri
 
 Snap a photo. Talk. Drop a pin. GPS names the place. A model files the card. When both a lost and a found pin exist, models propose a match. A person still proves ownership.
 
-This repo currently holds **product and research docs**. App code comes next (`/kengeri` PWA).
+This repo currently holds **product and engineering docs**. App code comes next (`/kengeri` PWA).
 
-## Read in this order
+## Developer pack
+
+Start here if you are building: **[docs/dev/README.md](docs/dev/README.md)**  
+Schema, APIs, location algorithm, capture, matching, UI, PWA, trust, Modal, analytics, build weeks, copy.
+
+## Product docs (read in this order)
 
 1. [docs/01-plan.md](docs/01-plan.md) — locked v1.1 plan (source of truth)
 2. [docs/02-product.md](docs/02-product.md) — why scratch, jobs, principles
