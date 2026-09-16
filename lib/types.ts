@@ -98,6 +98,39 @@ export type ReportRecord = {
   createdAt: string;
 };
 
+export type InstitutionType = "college" | "university" | "school" | "other";
+export type CampusStatus = "pending_approval" | "approved" | "suspended";
+
+export type CampusPlace = {
+  id: string;
+  name: string;
+  kind: string;
+  aliases?: string[];
+  lat: number;
+  lng: number;
+  floors: number[];
+  parent_id?: string;
+};
+
+export type CampusRecord = {
+  slug: string;
+  name: string;
+  institutionType: InstitutionType;
+  city: string;
+  status: CampusStatus;
+  contactEmail: string;
+  contactPhone: string;
+  deskPin: string;
+  centroid: {
+    lat: number;
+    lng: number;
+  };
+  fenceM: number;
+  places: CampusPlace[];
+  createdAt: string;
+  approvedAt: string | null;
+};
+
 export type PersistedDb = {
   sessions: DeviceSession[];
   users: UserRecord[];
@@ -105,4 +138,5 @@ export type PersistedDb = {
   items: ItemRecord[];
   claims: ClaimRecord[];
   reports: ReportRecord[];
+  campuses: CampusRecord[];
 };

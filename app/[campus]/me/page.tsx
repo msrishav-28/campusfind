@@ -202,10 +202,15 @@ export default function MePage({ params }: MePageProps) {
           <div className="space-y-3">
             {items.length === 0 ? (
               <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-8 text-center">
-                <div className="text-3xl">📍</div>
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-800 text-zinc-400">
+                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
                 <h3 className="mt-2 text-sm font-semibold text-zinc-200">No items pinned yet</h3>
                 <p className="mt-1 text-xs text-zinc-400">
-                  When you report lost or found items on Kengeri, they will appear here.
+                  When you report lost or found items on your campus, they will appear here.
                 </p>
                 <Link
                   href={`/${campus}/report`}
@@ -226,8 +231,8 @@ export default function MePage({ params }: MePageProps) {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={item.photoPath} alt={item.title} className="h-full w-full object-cover" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-xl">
-                        {item.type === "lost" ? "🔴" : "🟢"}
+                      <div className="flex h-full w-full items-center justify-center bg-zinc-900">
+                        <span className={`h-4 w-4 rounded-full ${item.type === "lost" ? "bg-rose-500 ring-4 ring-rose-500/20" : "bg-emerald-500 ring-4 ring-emerald-500/20"}`} />
                       </div>
                     )}
                   </div>
@@ -251,7 +256,13 @@ export default function MePage({ params }: MePageProps) {
                       )}
                     </div>
                     <h3 className="mt-1 truncate text-sm font-semibold text-zinc-100">{item.title}</h3>
-                    <p className="truncate text-xs text-zinc-400">📍 {item.placeLabel || "Kengeri spot"}</p>
+                    <p className="truncate text-xs text-zinc-400 flex items-center gap-1 mt-0.5">
+                      <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span>{item.placeLabel || "Campus spot"}</span>
+                    </p>
                   </div>
 
                   <div className="text-zinc-400">
@@ -268,7 +279,11 @@ export default function MePage({ params }: MePageProps) {
           <div className="space-y-3">
             {claims.length === 0 ? (
               <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-8 text-center">
-                <div className="text-3xl">🤝</div>
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-800 text-zinc-400">
+                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
                 <h3 className="mt-2 text-sm font-semibold text-zinc-200">No claims received</h3>
                 <p className="mt-1 text-xs text-zinc-400">
                   When other students identify their belongings in your posts, their claims will show here.
@@ -296,8 +311,11 @@ export default function MePage({ params }: MePageProps) {
                   </div>
 
                   {claim.secretAttemptOk && (
-                    <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-300 font-medium">
-                      ✓ Secret match verified: claimant provided the exact private detail!
+                    <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-300 font-medium flex items-center gap-1.5">
+                      <svg className="w-4 h-4 shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>Secret match verified: claimant provided the exact private detail.</span>
                     </div>
                   )}
 
@@ -345,7 +363,9 @@ export default function MePage({ params }: MePageProps) {
               <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
                 <h3 className="text-base font-bold text-zinc-100">Link Campus Account</h3>
                 <button type="button" onClick={() => setShowOtpModal(false)} className="text-zinc-400 hover:text-zinc-200">
-                  ✕
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
               </div>
 

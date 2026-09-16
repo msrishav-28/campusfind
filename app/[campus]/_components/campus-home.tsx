@@ -104,8 +104,8 @@ export function CampusHome({ campus, centroid }: CampusHomeProps) {
                 className="h-16 w-16 flex-shrink-0 rounded-2xl border border-zinc-800 object-cover"
               />
             ) : (
-              <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900 text-2xl">
-                {selected.type === "lost" ? "🔴" : "🟢"}
+              <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900">
+                <span className={`h-4 w-4 rounded-full ${selected.type === "lost" ? "bg-rose-500 ring-4 ring-rose-500/20" : "bg-emerald-500 ring-4 ring-emerald-500/20"}`} />
               </div>
             )}
 
@@ -120,9 +120,13 @@ export function CampusHome({ campus, centroid }: CampusHomeProps) {
                 {selected.type}
               </span>
               <h2 className="mt-1 truncate text-base font-semibold text-zinc-100">{selected.title}</h2>
-              <p className="truncate text-xs text-zinc-400">
-                📍 {selected.placeLabel ?? "Campus spot"}
-                {selected.accuracyM !== null ? ` · ±${Math.round(selected.accuracyM)} m` : ""}
+              <p className="truncate text-xs text-zinc-400 flex items-center gap-1 mt-0.5">
+                <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>{selected.placeLabel ?? "Campus spot"}</span>
+                {selected.accuracyM !== null ? <span>· ±{Math.round(selected.accuracyM)} m</span> : null}
               </p>
             </div>
           </div>

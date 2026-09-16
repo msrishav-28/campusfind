@@ -266,8 +266,8 @@ export function ItemDetailView({ campus, initialItem }: ItemDetailViewProps) {
             <img src={item.photoPath} alt={item.title} className="h-full w-full object-cover" />
           </div>
         ) : (
-          <div className="flex h-44 w-full items-center justify-center bg-zinc-950 text-4xl border-b border-zinc-800">
-            {item.type === "lost" ? "🔴" : "🟢"}
+          <div className="flex h-44 w-full items-center justify-center bg-zinc-950 border-b border-zinc-800">
+            <span className={`h-8 w-8 rounded-full ${item.type === "lost" ? "bg-rose-500 ring-8 ring-rose-500/20" : "bg-emerald-500 ring-8 ring-emerald-500/20"}`} />
           </div>
         )}
 
@@ -289,8 +289,12 @@ export function ItemDetailView({ campus, initialItem }: ItemDetailViewProps) {
           {/* Location details card */}
           <div className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-950/70 p-3.5 text-sm space-y-1.5">
             <div className="flex items-center justify-between">
-              <span className="font-medium text-zinc-200">
-                📍 {item.placeLabel || "Campus Location"}
+              <span className="font-medium text-zinc-200 flex items-center gap-1.5">
+                <svg className="w-4 h-4 text-zinc-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>{item.placeLabel || "Campus Location"}</span>
               </span>
               {item.accuracyM !== null && (
                 <span className="text-xs text-zinc-400">±{Math.round(item.accuracyM)} m accuracy</span>
@@ -298,8 +302,11 @@ export function ItemDetailView({ campus, initialItem }: ItemDetailViewProps) {
             </div>
 
             {item.floor !== null && (
-              <p className="text-xs text-zinc-300">
-                🏢 Level: {item.floor === 0 ? "Ground Floor" : `Floor ${item.floor}`}
+              <p className="text-xs text-zinc-300 flex items-center gap-1.5">
+                <svg className="w-3.5 h-3.5 text-zinc-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                <span>Level: {item.floor === 0 ? "Ground Floor" : `Floor ${item.floor}`}</span>
               </p>
             )}
 
@@ -392,8 +399,11 @@ export function ItemDetailView({ campus, initialItem }: ItemDetailViewProps) {
                   </div>
 
                   {claim.secretAttemptOk && (
-                    <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-300 font-medium">
-                      ✓ Secret match verified: claimant provided the exact private detail!
+                    <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-300 font-medium flex items-center gap-1.5">
+                      <svg className="w-4 h-4 shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>Secret match verified: claimant provided the exact private detail.</span>
                     </div>
                   )}
 
@@ -452,8 +462,8 @@ export function ItemDetailView({ campus, initialItem }: ItemDetailViewProps) {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={match.photoPath} alt={match.title} className="h-full w-full object-cover" />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-sm">
-                      {match.type === "lost" ? "🔴" : "🟢"}
+                    <div className="flex h-full w-full items-center justify-center bg-zinc-900">
+                      <span className={`h-3.5 w-3.5 rounded-full ${match.type === "lost" ? "bg-rose-500 ring-4 ring-rose-500/20" : "bg-emerald-500 ring-4 ring-emerald-500/20"}`} />
                     </div>
                   )}
                 </div>
@@ -479,9 +489,14 @@ export function ItemDetailView({ campus, initialItem }: ItemDetailViewProps) {
 
       {/* Safety Notice */}
       <div className="rounded-2xl border border-zinc-800/80 bg-zinc-950/40 p-4 text-xs text-zinc-400 space-y-1">
-        <p className="font-medium text-zinc-300">🛡️ Campus Safety Guidelines</p>
+        <p className="font-medium text-zinc-300 flex items-center gap-1.5">
+          <svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+          <span>Campus Safety Guidelines</span>
+        </p>
         <p>
-          Always arrange handovers in open, public campus areas like the Block IV cafeteria, Block I lobby, or main gate. Never share passwords or payment details.
+          Always arrange handovers in open, public campus areas like the cafeteria, reception lobby, or main gate. Never share passwords or payment details.
         </p>
       </div>
 
@@ -499,13 +514,25 @@ export function ItemDetailView({ campus, initialItem }: ItemDetailViewProps) {
                 }}
                 className="text-zinc-400 hover:text-zinc-200"
               >
-                ✕
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
 
             {claimStatusMsg ? (
-              <div className="py-6 text-center">
-                <div className="text-3xl">{claimStatusMsg.ok ? "🎉" : "⚠️"}</div>
+              <div className="py-6 text-center space-y-2">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-900 border border-zinc-800">
+                  {claimStatusMsg.ok ? (
+                    <svg className="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg className="w-6 h-6 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  )}
+                </div>
                 <p className={`mt-2 text-sm font-semibold ${claimStatusMsg.ok ? "text-emerald-400" : "text-rose-400"}`}>
                   {claimStatusMsg.text}
                 </p>
@@ -603,8 +630,12 @@ export function ItemDetailView({ campus, initialItem }: ItemDetailViewProps) {
                   />
                 </div>
 
-                <div className="rounded-xl bg-zinc-900/60 p-3 text-xs text-zinc-400">
-                  📍 Public handovers only: arrange to meet in front of campus security or a cafeteria.
+                <div className="rounded-xl bg-zinc-900/60 p-3 text-xs text-zinc-400 flex items-center gap-2">
+                  <svg className="w-4 h-4 text-zinc-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span>Public handovers only: arrange to meet in front of campus security or a cafeteria.</span>
                 </div>
 
                 <button

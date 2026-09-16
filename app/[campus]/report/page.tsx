@@ -143,6 +143,25 @@ export default function ReportPage({ params }: ReportPageProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // Campus state (loads dynamically from API with kengeri default)
+  const [campusData, setCampusData] = useState({
+    name: kengeriCampus.name,
+    centroid: kengeriCampus.centroid,
+    fence_m: kengeriCampus.fence_m,
+    places: kengeriCampus.places as KengeriPlace[],
+  });
+
+  useEffect(() => {
+    fetch(`/api/${campus}/places`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data && Array.isArray(data.places)) {
+          setCampusData(data);
+        }
+      })
+      .catch(() => {});
+  }, [campus]);
+
   // Initialise Geolocation
   const requestLocation = useCallback(() => {
     if (!navigator.geolocation) {
@@ -157,12 +176,12 @@ export default function ReportPage({ params }: ReportPageProps) {
         const { latitude, longitude, accuracy } = pos.coords;
         setDeviceCoords({ lat: latitude, lng: longitude, accuracy });
 
-        // Check off-campus fence (700m from centroid)
-        const distToCenter = haversineMeters(latitude, longitude, kengeriCampus.centroid.lat, kengeriCampus.centroid.lng);
-        setOffCampus(distToCenter > kengeriCampus.fence_m);
+        // Check off-campus fence
+        const distToCenter = haversineMeters(latitude, longitude, campusData.centroid.lat, campusData.centroid.lng);
+        setOffCampus(distToCenter > campusData.fence_m);
 
         // Nearest place snap
-        const ranked = [...kengeriCampus.places]
+        const ranked = [...campusData.places]
           .map((p) => ({ place: p, dist: haversineMeters(latitude, longitude, p.lat, p.lng) }))
           .sort((a, b) => a.dist - b.dist);
 
@@ -176,7 +195,7 @@ export default function ReportPage({ params }: ReportPageProps) {
       },
       { enableHighAccuracy: true, timeout: 8000, maximumAge: 15000 }
     );
-  }, []);
+  }, [campusData]);
 
   useEffect(() => {
     requestLocation();
@@ -289,7 +308,7 @@ export default function ReportPage({ params }: ReportPageProps) {
   };
 
   // Resolve active place details
-  const selectedPlace: KengeriPlace | undefined = kengeriCampus.places.find((p) => p.id === selectedPlaceId);
+  const selectedPlace: KengeriPlace | undefined = campusData.places.find((p) => p.id === selectedPlaceId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -315,8 +334,8 @@ export default function ReportPage({ params }: ReportPageProps) {
       lng = selectedPlace.lng;
       source = "picked";
     } else {
-      lat = kengeriCampus.centroid.lat;
-      lng = kengeriCampus.centroid.lng;
+      lat = campusData.centroid.lat;
+      lng = campusData.centroid.lng;
       source = "picked";
     }
 
@@ -381,7 +400,11 @@ export default function ReportPage({ params }: ReportPageProps) {
                 : "border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-zinc-700"
             }`}
           >
-            <div className="text-2xl">🟢</div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 mb-1 border border-emerald-500/30">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
             <span className="mt-1 text-base font-semibold">I Found Something</span>
             <span className="text-xs text-zinc-400">Park it on the map</span>
           </button>
@@ -395,7 +418,11 @@ export default function ReportPage({ params }: ReportPageProps) {
                 : "border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-zinc-700"
             }`}
           >
-            <div className="text-2xl">🔴</div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-500/20 text-rose-400 mb-1 border border-rose-500/30">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
             <span className="mt-1 text-base font-semibold">I Lost Something</span>
             <span className="text-xs text-zinc-400">Pin last-seen spot</span>
           </button>
@@ -453,8 +480,11 @@ export default function ReportPage({ params }: ReportPageProps) {
             )}
 
             {category === "id_card" && (
-              <div className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300">
-                ⚠️ <strong>Privacy alert:</strong> Cover the register number or personal details on the ID card before posting.
+              <div className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300 flex items-center gap-2">
+                <svg className="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span><strong>Privacy alert:</strong> Cover the register number or personal details on the ID card before posting.</span>
               </div>
             )}
           </div>
@@ -552,8 +582,12 @@ export default function ReportPage({ params }: ReportPageProps) {
             {/* GPS Snap Notification */}
             {deviceCoords && (
               <div className="mt-2.5 flex items-center justify-between rounded-xl bg-zinc-950/80 px-3 py-2 text-xs border border-zinc-800">
-                <span className="text-zinc-300">
-                  📍 GPS active · <strong>±{Math.round(deviceCoords.accuracy)} m</strong> accuracy
+                <span className="text-zinc-300 flex items-center gap-1.5">
+                  <svg className="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span>GPS active · <strong>±{Math.round(deviceCoords.accuracy)} m</strong> accuracy</span>
                 </span>
                 <button type="button" onClick={requestLocation} className="text-emerald-400 hover:underline">
                   Refresh
@@ -568,8 +602,11 @@ export default function ReportPage({ params }: ReportPageProps) {
             )}
 
             {offCampus && (
-              <div className="mt-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300">
-                You look outside the Kengeri campus fence. Pick a campus place to pin it correctly.
+              <div className="mt-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300 flex items-center gap-2">
+                <svg className="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span>You appear outside the campus perimeter fence. Pick a campus place to pin it correctly.</span>
               </div>
             )}
 
@@ -585,7 +622,7 @@ export default function ReportPage({ params }: ReportPageProps) {
                 className="mt-1.5 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 focus:border-emerald-500 focus:outline-none"
               >
                 <option value="">-- Choose known campus location --</option>
-                {kengeriCampus.places.map((place) => (
+                {campusData.places.map((place) => (
                   <option key={place.id} value={place.id}>
                     {place.name} ({place.kind})
                   </option>

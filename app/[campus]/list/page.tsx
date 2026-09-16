@@ -175,7 +175,11 @@ export default function ListPage({ params }: ListPageProps) {
             </div>
           ) : sortedItems.length === 0 ? (
             <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-8 text-center">
-              <div className="text-3xl">🔍</div>
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-800 text-zinc-400">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
               <h3 className="mt-2 text-sm font-semibold text-zinc-200">No items found</h3>
               <p className="mt-1 text-xs text-zinc-400">
                 {searchQuery
@@ -206,8 +210,8 @@ export default function ListPage({ params }: ListPageProps) {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={item.photoPath} alt={item.title} className="h-full w-full object-cover" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-xl bg-zinc-900">
-                        {item.type === "lost" ? "🔴" : "🟢"}
+                      <div className="flex h-full w-full items-center justify-center bg-zinc-900">
+                        <span className={`h-4 w-4 rounded-full ${item.type === "lost" ? "bg-rose-500 ring-4 ring-rose-500/20" : "bg-emerald-500 ring-4 ring-emerald-500/20"}`} />
                       </div>
                     )}
                   </div>
@@ -232,10 +236,14 @@ export default function ListPage({ params }: ListPageProps) {
 
                     <h3 className="mt-1 truncate text-sm font-semibold text-zinc-100">{item.title}</h3>
 
-                    <p className="mt-0.5 truncate text-xs text-zinc-400">
-                      📍 {item.placeLabel || "Campus spot"}
-                      {item.floor !== null ? ` (Floor ${item.floor})` : ""}
-                      {item.accuracyM !== null ? ` · ±${Math.round(item.accuracyM)}m` : ""}
+                    <p className="mt-0.5 truncate text-xs text-zinc-400 flex items-center gap-1">
+                      <svg className="w-3.5 h-3.5 text-zinc-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span>{item.placeLabel || "Campus spot"}</span>
+                      {item.floor !== null ? <span>(Floor {item.floor})</span> : null}
+                      {item.accuracyM !== null ? <span>· ±{Math.round(item.accuracyM)}m</span> : null}
                     </p>
 
                     {item.note && <p className="mt-0.5 truncate text-[11px] text-zinc-400">&ldquo;{item.note}&rdquo;</p>}

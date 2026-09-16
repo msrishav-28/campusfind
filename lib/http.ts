@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { getOrCreateSession } from "@/lib/store";
+import { isCampusApproved } from "@/lib/campus";
 
 export const SESSION_COOKIE = "cf_session";
 
@@ -20,7 +21,7 @@ export async function requireSession(campusSlug: string) {
 }
 
 export function assertCampus(campusSlug: string): boolean {
-  return campusSlug === "kengeri";
+  return isCampusApproved(campusSlug);
 }
 
 export function checkDeskPin(pin: string | null): boolean {

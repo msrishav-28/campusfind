@@ -76,21 +76,33 @@ export default function AboutPage() {
 
           <ul className="space-y-2.5 text-xs text-zinc-300">
             <li className="flex items-start gap-2">
-              <span className="text-emerald-400 font-bold">✓</span>
+              <span className="text-emerald-400 font-bold shrink-0 mt-0.5">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </span>
               <span>
-                <strong>Meet in public places:</strong> Always arrange handovers at open campus spots such as Block IV cafeteria, Block I lobby, or the main entrance gate.
+                <strong>Meet in public places:</strong> Always arrange handovers at open campus spots such as a campus cafeteria, security lobby, or the main entrance gate.
               </span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-amber-400 font-bold">⚠️</span>
+              <span className="text-amber-400 font-bold shrink-0 mt-0.5">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </span>
               <span>
                 <strong>Student ID Cards:</strong> Never post readable register numbers or ID card faces. Always cover student numbers before uploading.
               </span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-blue-400 font-bold">🏢</span>
+              <span className="text-blue-400 font-bold shrink-0 mt-0.5">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </span>
               <span>
-                <strong>14-Day Expiry Rule:</strong> Items that remain unclaimed after 14 days leave the public map and are handed over to the Block I security desk.
+                <strong>14-Day Expiry Rule:</strong> Items that remain unclaimed after 14 days leave the public map and are handed over to the campus security desk.
               </span>
             </li>
           </ul>

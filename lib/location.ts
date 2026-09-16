@@ -25,11 +25,16 @@ export function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: 
   return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-export function resolvePlace(lat: number, lng: number): PlaceResolution {
-  const offCampus =
-    haversineMeters(lat, lng, kengeriCampus.centroid.lat, kengeriCampus.centroid.lng) > kengeriCampus.fence_m;
+type TargetCampus = {
+  centroid: { lat: number; lng: number };
+  fence_m: number;
+  places: Place[];
+};
 
-  const ranked = kengeriCampus.places
+export function resolvePlace(lat: number, lng: number, campus: TargetCampus = kengeriCampus): PlaceResolution {
+  const offCampus = haversineMeters(lat, lng, campus.centroid.lat, campus.centroid.lng) > campus.fence_m;
+
+  const ranked = campus.places
     .map((place) => ({ place, d: haversineMeters(lat, lng, place.lat, place.lng) }))
     .sort((a, b) => a.d - b.d);
 

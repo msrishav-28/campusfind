@@ -1,7 +1,18 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
-import { ITEM_CATEGORIES, type ClaimRecord, type DeviceSession, type ItemRecord, type PersistedDb, type ReportReason, type UserRecord } from "@/lib/types";
+import {
+  ITEM_CATEGORIES,
+  type ClaimRecord,
+  type DeviceSession,
+  type ItemRecord,
+  type PersistedDb,
+  type ReportReason,
+  type UserRecord,
+  type CampusRecord,
+  type CampusPlace,
+  type InstitutionType,
+} from "@/lib/types";
 import { hashSecret } from "@/lib/security";
 import { hoursBetween, nowIso, plusDaysIso } from "@/lib/time";
 import { haversineMeters } from "@/lib/location";
@@ -16,6 +27,7 @@ const EMPTY_DB: PersistedDb = {
   items: [],
   claims: [],
   reports: [],
+  campuses: [],
 };
 
 type NewItemInput = {
@@ -48,10 +60,11 @@ async function loadDb(): Promise<PersistedDb> {
     return {
       ...EMPTY_DB,
       ...parsed,
-      items: [...parsed.items, ...seedItems(parsed.items)],
+      campuses: parsed.campuses ?? [],
+      items: [...(parsed.items ?? []), ...seedItems(parsed.items ?? [])],
     };
   } catch {
-    return { ...EMPTY_DB, items: seedItems([]) };
+    return { ...EMPTY_DB, campuses: [], items: seedItems([]) };
   }
 }
 
@@ -479,3 +492,91 @@ export async function expireItems(): Promise<number> {
 
   return count;
 }
+
+export type NewCampusInput = {
+  slug: string;
+  name: string;
+  institutionType: InstitutionType;
+  city: string;
+  contactEmail: string;
+  contactPhone: string;
+  deskPin?: string;
+  centroid?: { lat: number; lng: number };
+  centerLat?: number;
+  centerLng?: number;
+  fenceM?: number;
+  places?: CampusPlace[];
+  initialPlaces?: CampusPlace[];
+};
+
+export async function registerCampus(input: NewCampusInput): Promise<{ ok: boolean; message?: string; campus?: CampusRecord }> {
+  const db = await loadDb();
+  const slug = input.slug.toLowerCase().trim();
+  if (slug === "kengeri" || db.campuses.some((c) => c.slug === slug)) {
+    return { ok: false, message: "Campus slug already registered" };
+  }
+
+  const centroid = input.centroid ?? {
+    lat: input.centerLat ?? 12.8615,
+    lng: input.centerLng ?? 77.4385,
+  };
+
+  const placesList = (input.places && input.places.length > 0)
+    ? input.places
+    : (input as unknown as { initialPlaces?: CampusPlace[] }).initialPlaces;
+
+  const defaultPlaces: CampusPlace[] = placesList && placesList.length > 0 ? placesList : [
+    { id: "gate", name: "Main Gate", kind: "gate", aliases: ["entrance"], lat: centroid.lat, lng: centroid.lng, floors: [] },
+    { id: "admin", name: "Administrative Block", kind: "block", aliases: ["admin office"], lat: centroid.lat + 0.0002, lng: centroid.lng, floors: [0, 1, 2] },
+    { id: "library", name: "Central Library", kind: "indoor", aliases: ["library", "lib"], lat: centroid.lat + 0.0001, lng: centroid.lng + 0.0002, floors: [0, 1] },
+    { id: "canteen", name: "Campus Cafeteria", kind: "food", aliases: ["canteen", "cafe", "mess"], lat: centroid.lat - 0.0001, lng: centroid.lng - 0.0001, floors: [0] },
+    { id: "ground", name: "Sports Ground", kind: "sport", aliases: ["football ground", "sports"], lat: centroid.lat - 0.0003, lng: centroid.lng, floors: [] },
+  ];
+
+  const now = nowIso();
+  const campus: CampusRecord = {
+    slug,
+    name: input.name.trim(),
+    institutionType: input.institutionType,
+    city: input.city.trim(),
+    status: "pending_approval",
+    contactEmail: input.contactEmail.trim().toLowerCase(),
+    contactPhone: input.contactPhone.trim(),
+    deskPin: input.deskPin || "1234",
+    centroid,
+    fenceM: input.fenceM ?? 700,
+    places: defaultPlaces,
+    createdAt: now,
+    approvedAt: null,
+  };
+
+  db.campuses.push(campus);
+  await saveDb(db);
+  return { ok: true, campus };
+}
+
+export async function approveCampus(slug: string, deskPin?: string): Promise<boolean> {
+  const db = await loadDb();
+  const campus = db.campuses.find((c) => c.slug === slug.toLowerCase().trim());
+  if (!campus) return false;
+
+  campus.status = "approved";
+  campus.approvedAt = nowIso();
+  if (deskPin) {
+    campus.deskPin = deskPin;
+  }
+  await saveDb(db);
+  return true;
+}
+
+export async function getCampusRecord(slug: string): Promise<CampusRecord | null> {
+  const db = await loadDb();
+  const found = db.campuses.find((c) => c.slug === slug.toLowerCase().trim() && c.status === "approved");
+  return found ?? null;
+}
+
+export async function listCampuses(includePending = false): Promise<CampusRecord[]> {
+  const db = await loadDb();
+  return db.campuses.filter((c) => includePending || c.status === "approved");
+}
+
