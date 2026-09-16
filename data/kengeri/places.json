@@ -1,0 +1,27 @@
+{
+  "campus": "kengeri",
+  "name": "CHRIST (Deemed to be University), Bangalore Kengeri",
+  "plus_code": "VC7Q+75",
+  "centroid": { "lat": 12.86285, "lng": 77.43812 },
+  "fence_m": 700,
+  "note": "Coordinates are door-approximate. Walk and replace before treating as ground truth.",
+  "places": [
+    { "id": "gate", "name": "Main gate", "kind": "gate", "aliases": ["entrance", "mysore road gate"], "lat": 12.86380, "lng": 77.43720, "floors": [] },
+    { "id": "parking", "name": "Main parking", "kind": "parking", "aliases": ["car park", "two wheeler"], "lat": 12.86205, "lng": 77.43840, "floors": [] },
+    { "id": "block1", "name": "Block I", "kind": "block", "aliases": ["block 1", "blk 1", "admin"], "lat": 12.86335, "lng": 77.43770, "floors": [0, 1, 2] },
+    { "id": "block2", "name": "Block II", "kind": "block", "aliases": ["block 2", "blk 2"], "lat": 12.86320, "lng": 77.43835, "floors": [0, 1, 2] },
+    { "id": "block3", "name": "Block III", "kind": "block", "aliases": ["block 3", "blk 3"], "lat": 12.86270, "lng": 77.43855, "floors": [0, 1, 2] },
+    { "id": "block4", "name": "Block IV", "kind": "block", "aliases": ["block 4", "blk 4"], "lat": 12.86240, "lng": 77.43785, "floors": [0, 1, 2, 3] },
+    { "id": "central", "name": "Central Block", "kind": "block", "aliases": ["main academic"], "lat": 12.86295, "lng": 77.43800, "floors": [0, 1, 2] },
+    { "id": "library", "name": "Campus Library", "kind": "indoor", "aliases": ["lib", "block 4 library"], "lat": 12.86238, "lng": 77.43770, "floors": [2, 3], "parent_id": "block4" },
+    { "id": "cafe1", "name": "Block I Cafeteria", "kind": "food", "aliases": ["canteen 1", "mess block 1"], "lat": 12.86342, "lng": 77.43755, "floors": [0], "parent_id": "block1" },
+    { "id": "cafe4", "name": "Block IV Cafeteria", "kind": "food", "aliases": ["canteen 4"], "lat": 12.86220, "lng": 77.43795, "floors": [0], "parent_id": "block4" },
+    { "id": "workshop", "name": "Engineering Workshop", "kind": "block", "aliases": ["workshop", "foe workshop"], "lat": 12.86355, "lng": 77.43870, "floors": [0] },
+    { "id": "devadan", "name": "Devadan Hall", "kind": "hostel", "aliases": ["boys hostel", "men's hostel", "mens hostel"], "lat": 12.86170, "lng": 77.43880, "floors": [0, 1, 2, 3] },
+    { "id": "christ-hall", "name": "Christ Hall", "kind": "hostel", "aliases": ["girls hostel", "women's hostel", "womens hostel"], "lat": 12.86185, "lng": 77.43740, "floors": [0, 1, 2] },
+    { "id": "football", "name": "Football grounds", "kind": "sport", "aliases": ["ground", "football"], "lat": 12.86140, "lng": 77.43790, "floors": [] },
+    { "id": "basketball", "name": "Basketball courts", "kind": "sport", "aliases": ["basket court"], "lat": 12.86155, "lng": 77.43825, "floors": [] },
+    { "id": "chapel", "name": "Campus chapel", "kind": "other", "aliases": ["prayer hall", "church"], "lat": 12.86260, "lng": 77.43735, "floors": [0] },
+    { "id": "open-aud", "name": "Open auditorium", "kind": "outdoor", "aliases": ["open air auditorium", "lawn stage"], "lat": 12.86210, "lng": 77.43720, "floors": [] }
+  ]
+}
