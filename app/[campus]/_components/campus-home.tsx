@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { KengeriMap } from "./kengeri-map";
 import type { ApiItem } from "./types";
+import { trackEvent } from "@/lib/analytics";
 
 type CampusHomeProps = {
   campus: string;
@@ -39,12 +40,14 @@ export function CampusHome({ campus, centroid }: CampusHomeProps) {
   }, [activeFilter, campus, deviceLocation]);
 
   useEffect(() => {
+    trackEvent("map_view", { campus });
     fetch("/api/session", { cache: "no-store" }).catch(() => null);
 
     if (!navigator.geolocation) {
       return;
     }
 
+    trackEvent("gps_prompt", { campus });
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setDeviceLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
@@ -54,7 +57,7 @@ export function CampusHome({ campus, centroid }: CampusHomeProps) {
       },
       { enableHighAccuracy: true, timeout: 8000, maximumAge: 15000 }
     );
-  }, []);
+  }, [campus]);
 
   useEffect(() => {
     loadItems().catch(() => null);

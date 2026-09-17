@@ -12,7 +12,7 @@ This document defines the complete HTTP interface for CampusFind. CampusFind enf
 - **Authentication**:
   - Public operations: Map retrieval, item browsing, item reporting, onboarding submission.
   - User session: Cookie-based HTTP-only session token (`campusfind_session`).
-  - Claim / Sensitive operations: Requester phone verification via One-Time Password (OTP).
+  - Claim / Sensitive operations: Requester campus email verification via Supabase Auth One-Time Password (OTP). No SMS is used under any circumstances.
   - Admin operations: Protected by `x-admin-key` header matching server environment secret `ADMIN_KEY` or `CRON_SECRET`.
 
 ---
@@ -30,7 +30,7 @@ Returns current authenticated user status from the HTTP-only session cookie.
 {
   "authenticated": true,
   "user": {
-    "phone": "+919876543210",
+    "email": "student@christuniversity.in",
     "campusSlug": "kengeri",
     "role": "student"
   }
@@ -46,63 +46,56 @@ Returns current authenticated user status from the HTTP-only session cookie.
 
 ---
 
-### 1.2 Request OTP
-Issues a 6-digit numeric verification code to the target phone number for claim verification or desk access. In development mode, `devOtp` is returned directly for testing convenience.
+### 1.2 Start Email OTP (Supabase Auth)
+Dispatches a 6-digit verification code to the requester's campus email via Supabase Auth (`/auth/v1/otp`). No SMS OTP is sent. In development mode without live email dispatch, code preview is emitted in server logs.
 
 - **Method**: `POST`
-- **Route**: `/api/auth/otp/request`
+- **Route**: `/api/auth/otp/start`
 - **Payload**:
 ```json
 {
-  "phone": "+919876543210",
-  "campusSlug": "kengeri"
+  "email": "student@christuniversity.in"
 }
 ```
 - **Response `200 OK`**:
 ```json
 {
-  "success": true,
-  "message": "OTP dispatched successfully.",
-  "devOtp": "123456"
+  "challengeId": "123e4567-e89b-12d3-a456-426614174000",
+  "email": "student@christuniversity.in"
 }
 ```
 - **Response `400 Bad Request`**:
 ```json
 {
-  "error": "Invalid phone format. E.164 international standard required."
+  "error": "Please enter your campus email address. Verification codes are delivered via email."
 }
 ```
 
 ---
 
-### 1.3 Verify OTP
-Validates the supplied one-time password and establishes an encrypted session cookie.
+### 1.3 Verify Email OTP
+Validates the supplied 6-digit one-time password with Supabase Auth (`/auth/v1/verify`) and establishes an encrypted HTTP-only session cookie.
 
 - **Method**: `POST`
 - **Route**: `/api/auth/otp/verify`
 - **Payload**:
 ```json
 {
-  "phone": "+919876543210",
-  "otp": "123456",
-  "campusSlug": "kengeri"
+  "challengeId": "123e4567-e89b-12d3-a456-426614174000",
+  "code": "583921"
 }
 ```
 - **Response `200 OK`**:
 ```json
 {
-  "success": true,
-  "token": "sess_8f91b7e4...",
-  "user": {
-    "phone": "+919876543210",
-    "campusSlug": "kengeri"
-  }
+  "ok": true,
+  "userId": "user_8f91b7e4..."
 }
 ```
-- **Response `401 Unauthorized`**:
+- **Response `400 Bad Request`**:
 ```json
 {
-  "error": "Invalid or expired verification code."
+  "error": "Invalid code"
 }
 ```
 

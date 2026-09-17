@@ -17,7 +17,7 @@ import { hashSecret } from "@/lib/security";
 import { hoursBetween, nowIso, plusDaysIso } from "@/lib/time";
 import { haversineMeters } from "@/lib/location";
 import { kengeriCampus } from "@/lib/kengeri";
-import { isSupabaseConfigured, supabaseDb } from "@/lib/db/supabase";
+import { isSupabaseConfigured, supabaseDb, supabaseAuth } from "@/lib/db/supabase";
 
 const DB_PATH = path.join(process.cwd(), "data/runtime/db.json");
 
@@ -224,7 +224,16 @@ function getOrCreateUser(db: PersistedDb, target: string): UserRecord {
 export async function verifyOtp(challengeId: string, code: string): Promise<{ ok: boolean; sessionId?: string; userId?: string }> {
   const db = await loadDb();
   const challenge = db.otpChallenges.find((ch) => ch.id === challengeId);
-  if (!challenge || challenge.code !== code) {
+  if (!challenge) {
+    return { ok: false };
+  }
+
+  if (isSupabaseConfigured()) {
+    const supaRes = await supabaseAuth.verifyEmailOtp(challenge.target, code);
+    if (!supaRes.ok && challenge.code !== code) {
+      return { ok: false };
+    }
+  } else if (challenge.code !== code) {
     return { ok: false };
   }
 

@@ -372,13 +372,13 @@ export default function MePage({ params }: MePageProps) {
               {!otpSent ? (
                 <form onSubmit={handleStartOtp} className="mt-4 space-y-3">
                   <div>
-                    <label className="text-xs text-zinc-400">Phone or Campus Email:</label>
+                    <label className="text-xs text-zinc-400">Campus Email Address:</label>
                     <input
-                      type="text"
+                      type="email"
                       required
                       value={otpTarget}
                       onChange={(e) => setOtpTarget(e.target.value)}
-                      placeholder="e.g. 9876543210 or student@christuniversity.in"
+                      placeholder="e.g. student@christuniversity.in"
                       className="mt-1 w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-400 focus:border-emerald-500 focus:outline-none"
                     />
                   </div>

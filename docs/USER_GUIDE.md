@@ -39,7 +39,7 @@ If you find a student ID card or financial card:
 1. Tap an item card to open its dedicated permalink page.
 2. Review the photo and location history.
 3. Tap **Claim This Item**.
-4. **Verification:** Enter your phone number or campus email to receive an instant 6-digit OTP code. This prevents anonymous spam claims.
+4. **Verification:** Enter your campus email address to receive an instant 6-digit OTP code via Supabase Auth. Codes are delivered directly to your email inbox (no SMS). This prevents anonymous spam claims.
 5. **Prove Ownership:** If the finder set a private proof detail, enter what you know (e.g., "dent on the silver lid").
    - If your answer matches the hash, the system confirms ownership instantly.
    - You can also write a polite message to coordinate a handover.

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { formatTimeAgo } from "@/lib/time";
 import type { ItemRecord } from "@/lib/types";
+import { trackEvent } from "@/lib/analytics";
 
 type SanitizedItem = Omit<ItemRecord, "secretHash" | "posterSessionId" | "posterUserId"> & {
   matches?: SanitizedItem[];
@@ -192,6 +193,7 @@ export function ItemDetailView({ campus, initialItem }: ItemDetailViewProps) {
         );
         if (action === "accept") {
           setItem((prev) => ({ ...prev, status: "recovered" }));
+          trackEvent("claim_accept", { campus });
         }
       }
     } catch {
@@ -356,7 +358,10 @@ export function ItemDetailView({ campus, initialItem }: ItemDetailViewProps) {
               <div>
                 <button
                   type="button"
-                  onClick={() => setShowClaimModal(true)}
+                  onClick={() => {
+                    setShowClaimModal(true);
+                    trackEvent("claim_start", { campus, type: item.type });
+                  }}
                   className="w-full rounded-2xl bg-emerald-500 py-3.5 text-center text-sm font-semibold text-zinc-950 transition hover:bg-emerald-400"
                 >
                   This is mine — Claim item
@@ -548,19 +553,19 @@ export function ItemDetailView({ campus, initialItem }: ItemDetailViewProps) {
               /* Step 1: OTP Requirement */
               <div className="py-4 space-y-4">
                 <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3 text-xs text-zinc-300">
-                  To prevent unauthorized claims, please verify with your campus email or phone number first.
+                  To prevent unauthorized claims, please verify with your campus email address.
                 </div>
 
                 {!otpSent ? (
                   <form onSubmit={handleStartOtp} className="space-y-3">
                     <div>
-                      <label className="text-xs text-zinc-400">Phone or Campus Email:</label>
+                      <label className="text-xs text-zinc-400">Campus Email Address:</label>
                       <input
-                        type="text"
+                        type="email"
                         required
                         value={otpTarget}
                         onChange={(e) => setOtpTarget(e.target.value)}
-                        placeholder="e.g. 9876543210 or student@christuniversity.in"
+                        placeholder="e.g. student@christuniversity.in"
                         className="mt-1 w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-sm text-zinc-100 placeholder-zinc-400 focus:border-emerald-500 focus:outline-none"
                       />
                     </div>

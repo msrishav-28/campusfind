@@ -207,3 +207,71 @@ export const supabaseDb = {
     }
   },
 };
+
+export const supabaseAuth = {
+  async sendEmailOtp(email: string): Promise<{ ok: boolean; error?: string }> {
+    if (!SUPABASE_URL || !SUPABASE_KEY) {
+      return { ok: false, error: "Supabase credentials not configured" };
+    }
+
+    try {
+      const url = `${SUPABASE_URL}/auth/v1/otp`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          create_user: true,
+        }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text().catch(() => "Unknown error");
+        return { ok: false, error: `Supabase Auth error (${res.status}): ${errText}` };
+      }
+
+      return { ok: true };
+    } catch (err: unknown) {
+      return { ok: false, error: err instanceof Error ? err.message : "Network failure" };
+    }
+  },
+
+  async verifyEmailOtp(email: string, token: string): Promise<{ ok: boolean; userId?: string; error?: string }> {
+    if (!SUPABASE_URL || !SUPABASE_KEY) {
+      return { ok: false, error: "Supabase credentials not configured" };
+    }
+
+    try {
+      const url = `${SUPABASE_URL}/auth/v1/verify`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type: "email",
+          email: email.trim().toLowerCase(),
+          token: token.trim(),
+        }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text().catch(() => "Invalid or expired token");
+        return { ok: false, error: errText };
+      }
+
+      const data = await res.json();
+      const userId = data?.user?.id;
+      return { ok: true, userId };
+    } catch (err: unknown) {
+      return { ok: false, error: err instanceof Error ? err.message : "Network failure" };
+    }
+  },
+};
+

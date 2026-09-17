@@ -31,7 +31,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full bg-zinc-950 text-zinc-100 antialiased">
-      <body className="min-h-full flex flex-col selection:bg-emerald-500/30 selection:text-emerald-200">{children}</body>
+      <body className="min-h-full flex flex-col selection:bg-emerald-500/30 selection:text-emerald-200">
+        {children}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined' && 'serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').catch(function() {});
+                });
+              }
+            `,
+          }}
+        />
+      </body>
     </html>
   );
 }

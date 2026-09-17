@@ -6,6 +6,7 @@ import { CampusShell } from "../_components/campus-shell";
 import { kengeriCampus, type KengeriPlace } from "@/lib/kengeri";
 import { haversineMeters } from "@/lib/location";
 import { ITEM_CATEGORIES, type ItemCategory } from "@/lib/types";
+import { trackEvent } from "@/lib/analytics";
 
 type ReportPageProps = {
   params: Promise<{ campus: string }>;
@@ -198,8 +199,9 @@ export default function ReportPage({ params }: ReportPageProps) {
   }, [campusData]);
 
   useEffect(() => {
+    trackEvent("report_open", { campus, type });
     requestLocation();
-  }, [requestLocation]);
+  }, [campus, requestLocation, type]);
 
   // Initialise Speech Recognition
   useEffect(() => {
@@ -224,6 +226,7 @@ export default function ReportPage({ params }: ReportPageProps) {
           .join(" ");
 
         if (transcript.trim()) {
+          trackEvent("voice_result", { campus, chars: transcript.length });
           setTitle(transcript.trim());
           // Simple heuristic chip inferencing
           const lower = transcript.toLowerCase();
@@ -261,7 +264,7 @@ export default function ReportPage({ params }: ReportPageProps) {
         recognitionRef.current.abort();
       }
     };
-  }, []);
+  }, [campus]);
 
   const toggleVoice = () => {
     if (!recognitionRef.current) return;
@@ -274,6 +277,7 @@ export default function ReportPage({ params }: ReportPageProps) {
       try {
         recognitionRef.current.start();
         setIsListening(true);
+        trackEvent("voice_start", { campus });
       } catch {
         setIsListening(false);
       }
@@ -289,6 +293,7 @@ export default function ReportPage({ params }: ReportPageProps) {
       const compressed = await compressPhoto(file);
       setPhotoBlob(compressed);
       setPhotoPreview(URL.createObjectURL(compressed));
+      trackEvent("photo_attached", { campus, bytes: compressed.size });
     } catch {
       setSubmitError("Failed to process image. Please choose another.");
     } finally {
@@ -378,7 +383,15 @@ export default function ReportPage({ params }: ReportPageProps) {
         throw new Error(data.error || "Failed to post item");
       }
 
-      router.push(`/kengeri/item/${data.itemId}`);
+      trackEvent("item_create", {
+        campus,
+        type,
+        has_photo: Boolean(photoBlob),
+        has_coords: Boolean(deviceCoords),
+        source,
+      });
+
+      router.push(`/${campus}/item/${data.itemId}`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Something went wrong";
       setSubmitError(msg);
