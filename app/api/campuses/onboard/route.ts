@@ -4,6 +4,9 @@ import { registerCampus } from "@/lib/store";
 
 export async function POST(request: Request) {
   try {
+    const adminKeyHeader = request.headers.get("x-admin-key");
+    const configuredAdminKey = process.env.ADMIN_KEY;
+
     const json = await request.json();
     const parsed = campusOnboardSchema.safeParse(json);
     if (!parsed.success) {
@@ -14,6 +17,27 @@ export async function POST(request: Request) {
     }
 
     const { slug, name, institutionType, city, contactEmail, contactPhone, deskPin, lat, lng, fenceM } = parsed.data;
+
+    // Enforce institutional verification: either valid admin key OR verified academic email domain
+    const emailLower = contactEmail.toLowerCase().trim();
+    const isAcademicEmail =
+      emailLower.endsWith(".edu") ||
+      emailLower.endsWith(".edu.in") ||
+      emailLower.endsWith(".ac.in") ||
+      emailLower.endsWith(".res.in") ||
+      emailLower.endsWith(".org");
+
+    const hasAdminKey = Boolean(configuredAdminKey && adminKeyHeader === configuredAdminKey);
+
+    if (configuredAdminKey && !hasAdminKey && !isAcademicEmail) {
+      return NextResponse.json(
+        {
+          error:
+            "Institutional verification required. Please provide an authorized institutional email (.edu, .edu.in, .ac.in) or administrator key.",
+        },
+        { status: 403 }
+      );
+    }
 
     const result = await registerCampus({
       slug,

@@ -125,6 +125,11 @@ export default function AboutPage() {
         <div className="border-t border-zinc-800/80 pt-4 text-center text-[11px] text-zinc-400 space-y-1">
           <p>CampusFind is an independent, student-run campus utility for CHRIST Kengeri.</p>
           <p>Pins do not constitute an official university police report or institutional guarantee.</p>
+          <p className="pt-2">
+            <Link href="/onboard" className="text-zinc-500 hover:text-zinc-400 transition">
+              Institutional Onboarding (Campus Staff & Officials) →
+            </Link>
+          </p>
         </div>
       </section>
     </main>

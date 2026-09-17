@@ -13,6 +13,8 @@ function parseNumber(value: FormDataEntryValue | null): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+import { isSupabaseConfigured, supabaseDb } from "@/lib/db/supabase";
+
 async function persistPhoto(campus: string, photo: File): Promise<string> {
   const maxBytes = 8 * 1024 * 1024;
   if (photo.size > maxBytes) {
@@ -21,10 +23,22 @@ async function persistPhoto(campus: string, photo: File): Promise<string> {
 
   const ext = photo.type === "image/png" ? "png" : photo.type === "image/webp" ? "webp" : "jpg";
   const photoId = randomUUID();
+  const bytes = Buffer.from(await photo.arrayBuffer());
+
+  if (isSupabaseConfigured()) {
+    try {
+      const storageUrl = await supabaseDb.uploadPhoto(campus, photoId, bytes, photo.type || "image/jpeg");
+      if (storageUrl) {
+        return storageUrl;
+      }
+    } catch {
+      // Fall back to local file
+    }
+  }
+
   const relative = `campuses/${campus}/items/${photoId}.${ext}`;
   const absolute = path.join(process.cwd(), "public", relative);
   await mkdir(path.dirname(absolute), { recursive: true });
-  const bytes = Buffer.from(await photo.arrayBuffer());
   await writeFile(absolute, bytes);
   return `/${relative}`;
 }

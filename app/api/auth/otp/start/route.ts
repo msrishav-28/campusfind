@@ -17,5 +17,13 @@ export async function POST(request: Request) {
   }
 
   const challenge = await createOtp(target, session.id);
-  return NextResponse.json({ challengeId: challenge.challengeId, codePreview: challenge.code });
+  const isDev = process.env.NODE_ENV !== "production";
+  if (isDev) {
+    console.log(`[DEV OTP] Target: ${target}, Code: ${challenge.code}`);
+  }
+
+  return NextResponse.json({
+    challengeId: challenge.challengeId,
+    ...(isDev ? { codePreview: challenge.code } : {}),
+  });
 }

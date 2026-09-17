@@ -11,6 +11,7 @@ export default function OnboardPage() {
   const [contactEmail, setContactEmail] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [deskPin, setDeskPin] = useState("1234");
+  const [adminKey, setAdminKey] = useState("");
   const [lat, setLat] = useState("12.9716");
   const [lng, setLng] = useState("77.5946");
   const [fenceM, setFenceM] = useState("700");
@@ -67,9 +68,14 @@ export default function OnboardPage() {
         fenceM: parseInt(fenceM, 10) || 700,
       };
 
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (adminKey.trim()) {
+        headers["x-admin-key"] = adminKey.trim();
+      }
+
       const res = await fetch("/api/campuses/onboard", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify(payload),
       });
 
@@ -312,7 +318,19 @@ export default function OnboardPage() {
                     maxLength={8}
                     className="w-full rounded-xl border border-zinc-800 bg-black px-3.5 py-2.5 text-sm text-white placeholder-zinc-600 focus:border-emerald-500 focus:outline-none"
                   />
-                  <p className="mt-1 text-[11px] text-zinc-500">Security personnel will use this passcode to access the institution desk portal.</p>
+                  <p className="mt-1 text-[11px] text-zinc-500">Security officers use this PIN to log into the physical custody desk.</p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1.5">Institutional Passkey / Admin Key (Optional)</label>
+                  <input
+                    type="password"
+                    value={adminKey}
+                    onChange={(e) => setAdminKey(e.target.value)}
+                    placeholder="Authorized institutional passkey (if provided)"
+                    className="w-full rounded-xl border border-zinc-800 bg-black px-3.5 py-2.5 text-sm text-white placeholder-zinc-600 focus:border-emerald-500 focus:outline-none"
+                  />
+                  <p className="mt-1 text-[11px] text-zinc-500">Required if registering without an official .edu or .edu.in institutional email domain.</p>
                 </div>
               </div>
 

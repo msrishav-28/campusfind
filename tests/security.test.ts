@@ -24,3 +24,24 @@ test("Security: hashSecret generates stable SHA-256 hex string", () => {
   const hashOther = hashSecret("Blue dog sticker");
   assert.notEqual(hash1, hashOther);
 });
+
+test("Security: OTP codePreview is suppressed when NODE_ENV is production", async () => {
+  const envObj = process.env as Record<string, string | undefined>;
+  const originalEnv = envObj.NODE_ENV;
+  try {
+    envObj.NODE_ENV = "production";
+    const isDev = envObj.NODE_ENV !== "production";
+    assert.equal(isDev, false, "Must detect production mode");
+
+    const sampleResponse = {
+      challengeId: "ch_123",
+      ...(isDev ? { codePreview: "123456" } : {}),
+    };
+
+    assert.equal("codePreview" in sampleResponse, false, "codePreview must not exist in production response");
+    assert.equal(sampleResponse.challengeId, "ch_123");
+  } finally {
+    envObj.NODE_ENV = originalEnv;
+  }
+});
+

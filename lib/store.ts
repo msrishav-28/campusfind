@@ -17,6 +17,7 @@ import { hashSecret } from "@/lib/security";
 import { hoursBetween, nowIso, plusDaysIso } from "@/lib/time";
 import { haversineMeters } from "@/lib/location";
 import { kengeriCampus } from "@/lib/kengeri";
+import { isSupabaseConfigured, supabaseDb } from "@/lib/db/supabase";
 
 const DB_PATH = path.join(process.cwd(), "data/runtime/db.json");
 
@@ -286,6 +287,15 @@ export async function createItem(input: NewItemInput): Promise<ItemRecord> {
     .filter((other) => other.type !== item.type && other.campusSlug === item.campusSlug && other.status === "open")
     .forEach((other) => recomputeMatchesForItem(db, other.id));
   await saveDb(db);
+
+  if (isSupabaseConfigured()) {
+    try {
+      await supabaseDb.insertItem(item);
+    } catch {
+      // Non-blocking fallback to maintain service availability
+    }
+  }
+
   return item;
 }
 
@@ -359,6 +369,15 @@ export async function patchItem(
   item.updatedAt = nowIso();
   recomputeMatchesForItem(db, item.id);
   await saveDb(db);
+
+  if (isSupabaseConfigured()) {
+    try {
+      await supabaseDb.updateItem(item.id, item);
+    } catch {
+      // Non-blocking fallback
+    }
+  }
+
   return sanitizeItem(item);
 }
 
