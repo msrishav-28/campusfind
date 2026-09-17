@@ -20,5 +20,8 @@ Read in order if you are new:
 14. [13-build-sequence.md](13-build-sequence.md)
 15. [14-kengeri.md](14-kengeri.md)
 16. [15-claim-categories-copy.md](15-claim-categories-copy.md)
+17. [16-remaining-backlog.md](16-remaining-backlog.md) — pick list: not-yet-in-code, GPS rule, student contrib
 
-App code lives at repo root when it exists. First route: `/kengeri`.
+If you are implementing this week, start at **16** then the lock it cites.
+
+App code lives at repo root. First student route: `/kengeri`.
